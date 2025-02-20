@@ -8,18 +8,32 @@
     @vite('resources/css/app.css')
 </head>
 <body>
+@if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
     <x-mine.nav Titulo="Editar Alumno"/>
     <div class="container mt-5">
         <h1>Editar Alumno</h1>
         <form action="{{ route('alumnos.update', $alumno->id) }}" method="POST">
             @csrf
-            @method('PUT')
-
+            @method('PUT')        
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" value="{{ old('nombre', $alumno->nombre) }}" required>
             </div>
-
+            
             <div class="mb-3">
                 <label for="dni" class="form-label">DNI</label>
                 <input type="text" class="form-control" id="dni" name="dni" value="{{ old('dni', $alumno->dni) }}" required>

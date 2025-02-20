@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Alumno;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\UpdateAlumnoRequest;
 class AlumnoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+     public function __construct()
+     {
+         $this->middleware('auth'); // Protege todas las rutas del controlador
+     }
+ 
     public function index()
     {
         $alumnos = Alumno::all(); // Obtiene todos los alumnos
@@ -26,22 +32,11 @@ class AlumnoController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     */public function store(Request $request)
-{
-    $request->validate([
-        'nombre' => 'required|string|max:255',
-        'dni' => 'required|string|size:9|unique:alumnos,dni',
-        'email' => 'required|email|unique:alumnos,email',
-        'fechaNacimiento' => 'required|date',
-        'idiomas' => 'nullable|string',
-    ]);
-
-    Alumno::create($request->all());
-
+     */
+    public function store(UpdateAlumnoRequest $request, Alumno $alumno){
+    $alumno->create($request->validated());
     return redirect()->route('alumnos.create')->with('success', 'Alumno agregado correctamente.');
-
-}
-
+    }
 
     /**
      * Display the specified resource.
@@ -64,26 +59,9 @@ class AlumnoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Alumno $alumno)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'dni' => ['required', 'string', 'size:9', function ($attribute, $value, $fail) {
-                $numero = substr($value, 0, 8);
-                $letra = strtoupper(substr($value, -1));
-                $letrasDni = "TRWAGMYFPDXBNJZSQVHLCKE";
-                if ($letra !== $letrasDni[$numero % 23]) {
-                    $fail("El DNI no es válido.");
-                }
-            }],
-            'email' => 'required|email|max:255',
-            'fechaNacimiento' => 'required|date|before:1980-01-01',
-            'idiomas' => 'nullable|string',
-        ]);
-    
-        $alumno->update($request->all());
-    
-        return redirect()->route('alumnos.index')->with('success', 'Alumno actualizado correctamente.');
+    public function update(UpdateAlumnoRequest $request, Alumno $alumno){
+    $alumno->update($request->validated());
+    return redirect()->route('alumnos.index')->with('success', 'Alumno actualizado correctamente.');
     }
     
     /**
